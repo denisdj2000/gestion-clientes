@@ -1,5 +1,10 @@
 # Gestión de Clientes — Denis Bardales (versión con Firebase + GitHub)
 
+> **Si ya tenías la app funcionando y solo necesitas la actualización para que
+> varios usuarios compartan la misma lista de clientes, ve directo a la sección
+> [Actualización: acceso compartido entre usuarios](#actualización-acceso-compartido-entre-usuarios)
+> al final de este documento.**
+
 App para llevar el control de tus clientes (empresas, planes, tarifas, estado de pago
 y visitas), con los datos guardados en la nube (Firebase) para que puedas entrar
 desde tu computadora y tu teléfono con el mismo usuario y ver la misma información.
@@ -134,3 +139,40 @@ Cada vez que quieras hacerle un cambio a la app (por ejemplo, otro plan de preci
 o un campo nuevo), puedo prepararte el archivo `index.html` actualizado — solo
 tienes que volver a subirlo a GitHub (Paso 5) reemplazando el archivo existente;
 GitHub Pages se actualiza solo en un par de minutos.
+
+---
+
+## Actualización: acceso compartido entre usuarios
+
+En la primera versión, cada usuario que creabas en Firebase Authentication tenía
+su propia lista de clientes separada — por diseño, para que nadie viera los datos
+de nadie más. Si agregaste un segundo usuario esperando que viera los mismos
+clientes que tú, por eso no los veía: estaban guardados en un espacio solo tuyo.
+
+Esta versión lo cambia: **ahora todos los usuarios que crees en Firebase
+Authentication comparten la misma lista de clientes.** Sigue sin existir un
+formulario de registro público en la app, así que solo pueden entrar las
+personas a las que tú les crees un usuario manualmente (Paso 2 de la guía).
+
+Para actualizar tu app ya publicada a esta versión:
+
+1. **Respalda lo que ya tienes.** Entra a tu app actual con la cuenta que tiene
+   clientes registrados y haz clic en **"Exportar respaldo"** (se descarga un
+   `.json`). Si las dos cuentas ya tienen clientes distintos, repite esto con
+   cada cuenta por separado, para no perder ninguno.
+2. **Actualiza las reglas de Firestore.** En Firebase Console → Firestore
+   Database → pestaña **Reglas**, reemplaza todo el contenido por el nuevo
+   `firestore.rules` que te compartí (permite que cualquier usuario que inició
+   sesión lea y escriba la misma colección `clientes`). Haz clic en **Publicar**.
+3. **Reemplaza el código en GitHub.** En tu repositorio, abre `index.html`,
+   haz clic en el ícono de lápiz (editar), borra todo el contenido y pega el del
+   nuevo `index.html` que te compartí — o simplemente vuelve a subir el archivo
+   (Paso 5) reemplazando el existente. Confirma los cambios.
+4. Espera uno o dos minutos a que GitHub Pages actualice y vuelve a abrir tu link.
+5. Inicia sesión con cualquiera de las dos cuentas y usa **"Importar respaldo"**
+   para volver a cargar el o los archivos `.json` del paso 1. Si importaste desde
+   ambas cuentas y algún cliente quedó duplicado, ábrelo y elimínalo con el botón
+   **"Eliminar cliente"**.
+
+De ahí en adelante, cualquier cliente que agregues o edites con una cuenta será
+visible de inmediato para la otra.
