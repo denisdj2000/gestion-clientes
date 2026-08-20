@@ -1,8 +1,13 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId}/clientes/{clientId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    // Cualquier usuario que haya iniciado sesión (es decir, cualquiera de las
+    // cuentas que tú crees manualmente en Firebase Authentication) puede leer
+    // y escribir en la misma lista compartida de clientes. Como no existe un
+    // formulario público de registro en la app, solo las personas a las que
+    // tú les crees un usuario pueden entrar.
+    match /clientes/{clientId} {
+      allow read, write: if request.auth != null;
     }
   }
 }
