@@ -297,12 +297,12 @@
      ============================================================ -->
 <script>
   window.__FIREBASE_CONFIG__ = {
-    apiKey: "AIzaSyD89qtpvL8XdChtRb4B6Z-csnWwqPSIVs0",
-    authDomain: "gestion-clientes-denis.firebaseapp.com",
-    projectId: "gestion-clientes-denis",
-    storageBucket: "gestion-clientes-denis.firebasestorage.app",
-    messagingSenderId: "170467377357",
-    appId: "1:170467377357:web:da577c2f61f658a7106984"
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_PROYECTO.firebaseapp.com",
+    projectId: "TU_PROYECTO",
+    storageBucket: "TU_PROYECTO.appspot.com",
+    messagingSenderId: "TU_SENDER_ID",
+    appId: "TU_APP_ID"
   };
 </script>
 
@@ -538,8 +538,10 @@
       return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
     }
 
-    function clientsCollection(userId) {
-      return collection(db, 'users', userId, 'clientes');
+    // Todos los usuarios autorizados (creados en Firebase Authentication)
+    // comparten esta misma colección de clientes.
+    function clientsCollection() {
+      return collection(db, 'clientes');
     }
 
     onAuthStateChanged(auth, function (user) {
@@ -551,7 +553,7 @@
         document.getElementById('sessionEmail').textContent = user.email || '';
         hide('loginScreen');
         show('app');
-        unsubscribe = onSnapshot(clientsCollection(user.uid), function (snap) {
+        unsubscribe = onSnapshot(clientsCollection(), function (snap) {
           clients = [];
           snap.forEach(function (docSnap) {
             var data = docSnap.data();
@@ -783,8 +785,8 @@
       btnSave.disabled = true;
 
       var promise = id
-        ? updateDoc(doc(db, 'users', currentUid, 'clientes', id), data)
-        : addDoc(clientsCollection(currentUid), data);
+        ? updateDoc(doc(db, 'clientes', id), data)
+        : addDoc(clientsCollection(), data);
 
       promise.then(function () {
         showToast(id ? 'Cliente actualizado.' : 'Cliente agregado.');
@@ -800,7 +802,7 @@
       var id = document.getElementById('clientId').value;
       if (!id || !currentUid) return;
       if (!confirm('¿Eliminar este cliente? Esta acción no se puede deshacer.')) return;
-      deleteDoc(doc(db, 'users', currentUid, 'clientes', id)).then(function () {
+      deleteDoc(doc(db, 'clientes', id)).then(function () {
         closeModal();
         showToast('Cliente eliminado.');
       }).catch(function (err) {
@@ -822,7 +824,7 @@
       if (!currentUid) return;
       var c = clients.find(function (c) { return c.id === id; });
       if (!c) return;
-      updateDoc(doc(db, 'users', currentUid, 'clientes', id), {
+      updateDoc(doc(db, 'clientes', id), {
         estadoPago: 'aldia',
         ultimoPago: new Date().toISOString().slice(0, 10)
       }).then(function () {
@@ -862,9 +864,9 @@
             var id = payload.id;
             delete payload.id;
             if (id) {
-              return setDoc(doc(db, 'users', currentUid, 'clientes', id), payload, { merge: true });
+              return setDoc(doc(db, 'clientes', id), payload, { merge: true });
             }
-            return addDoc(clientsCollection(currentUid), payload);
+            return addDoc(clientsCollection(), payload);
           });
           Promise.all(writes).then(function () {
             showToast('Respaldo importado (' + writes.length + ' clientes).');
